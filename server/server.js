@@ -16,14 +16,21 @@ app.use(express.static(publicPath));   //with USE you register a middleware
 io.on('connection', (socket) => {
   console.log('New user connected');
 
-  socket.emit('newMessage', {
-    from: 'Sebas',
-    text: 'See you then',
-    createAt: 124123
-  });
+//socket emit an event to a single connection
+  // socket.emit('newMessage', {
+  //   from: 'Sebas',
+  //   text: 'See you then',
+  //   createAt: 124123
+  // });
 
   socket.on('createMessage', (message) => {
     console.log('createMessage', message);
+    //emit an event to every connection
+    io.emit('newMessage', {
+      from: message.from,
+      text: message.text,
+      createAt: new Date().getTime()
+    });
   });
 
   socket.on('disconnect', () => {
