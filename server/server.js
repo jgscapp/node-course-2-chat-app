@@ -31,11 +31,11 @@ io.on('connection', (socket) => {
   //socket broadcast emit from Admin text New user joined
    socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user joined'));
 
-   socket.on('createMessage', (message) => {
+   socket.on('createMessage', (message, callback) => {
      console.log('createMessage', message);
     //emit an event to every connection
     io.emit('newMessage', generateMessage(message.from, message.text));
-
+    callback('This is from the server.');  //this callback call the function from socket.emit at index.js
   //broadcast.emit send message to eveybody but the user specified
   //  socket.broadcast.emit('newMessage', {
   //    from: message.from,
