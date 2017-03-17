@@ -1,6 +1,22 @@
 //open a websocket connection with the server
 var socket = io();
 
+function scrollToBottom () {
+  // selectors
+  var messages = jQuery('#messages');
+  var newMessage = messages.children('li:last-child');
+  // heights
+  var clientHeight = messages.prop('clientHeight');
+  var scrollTop = messages.prop('scrollTop');
+  var scrollHeight = messages.prop('scrollHeight');
+  var newMessageHeight = newMessage.innerHeight();
+  var lastMessageHeight = newMessage.prev().innerHeight();
+
+  if (clientHeight + scrollTop + newMessageHeight + lastMessageHeight >= scrollHeight) {
+    messages.scrollTop(scrollHeight);
+  }
+}
+
 //listen an event
 //  socket.on('connect', () => {  //do no use arrow function, they did not work with  other browsers but chrome
 socket.on('connect', function () {
@@ -27,6 +43,7 @@ socket.on('newMessage', function (message) {
   });
 
   jQuery('#messages').append(html);
+  scrollToBottom();
 });
 
 //client event emiter
@@ -47,6 +64,7 @@ socket.on('newLocationMessage', function (message) {
   });
 
   jQuery('#messages').append(html);
+  scrollToBottom();
   // var li = jQuery('<li></li>');
   // var a = jQuery('<a target="_blank">My current location</a>');
   //
