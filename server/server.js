@@ -4,12 +4,16 @@ const express = require('express');
 const socketIO = require('socket.io');
 
 const {generateMessage, generateLocationMessage} = require('./utils/message');
+const {isRealString} = require('./utils/validation');
+const {Users} = require('./utils/users');
+
 const publicPath = path.join(__dirname, '../public');
 const port = process.env.PORT || 3000;
 
 var app = express();
 var server = http.createServer(app);
 var io = socketIO(server);  // websocket server,  listening events,   comunicate server-client
+var users = new Users();
 
 app.use(express.static(publicPath));   //with USE you register a middleware
 
@@ -24,12 +28,33 @@ io.on('connection', (socket) => {
   //   createAt: 124123
   // });
 
-//socket emit from Admin text  welcome to the chat app
-  socket.emit('newMessage', generateMessage('Admin', 'Welcome to chat app'));
 
 
-  //socket broadcast emit from Admin text New user joined
-   socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user joined'));
+
+   socket.on('join', (params, callback) => {
+     if (!isRealString(params.name) || !isRealString(params.room)) {
+       return callback('Name and room name are required');
+     }
+
+     socket.join(params.room);
+     //remove user from previous room
+     users.removeUser(socket.id);
+     users.addUser(socket.id, params.name, params.room);
+
+     io.to(params.room).emit('updateUserList', users.getUserList(params.room));
+     // socket.leave('name of room');
+
+     //io.emit --> io.to('Name of room').emit
+     // socket.boradcast.emit --> socket.broadcast.to('name of room').emit
+
+     //socket emit from Admin text  welcome to the chat app
+       socket.emit('newMessage', generateMessage('Admin', 'Welcome to chat app'));
+
+       //socket broadcast emit from Admin text New user joined
+        socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin', `${params.name} has joined.`));
+
+     callback();
+   });
 
    socket.on('createMessage', (message, callback) => {
      console.log('createMessage', message);
@@ -49,7 +74,12 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    console.log('User was Disconnected');
+   var user = users.removeUser(socket.id);
+
+   if (user) {
+     io.to(user.room).emit('updateUserList', users.getUserList(user.room));
+     io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has left.`));
+   }
   });
 });
 
