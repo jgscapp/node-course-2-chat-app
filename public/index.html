@@ -21,12 +21,24 @@
     </div>
     <div class="form-field">
       <label>Room name</label>
-      <input type="text" name="room">
+     <input list="rooms" name="room"   onblur="this.value=this.value.toUpperCase()">
+     <datalist id="rooms">
+     </datalist>
     </div>
     <div class="form-field">
-      <button>Join</button>
+       <button>Join</button>
     </div>
   </form>
   </div>
+
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/libs/jquery-3.1.1.min.js"></script>
+  <script src="/js/libs/moment.js"></script>
+  <script src="/js/libs/mustache.js"></script>
+  <script src="/js/libs/deparam.js"></script>
+  <script src="/js/listrooms.js"></script>
+
+
 </body>
 </html>

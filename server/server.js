@@ -29,6 +29,28 @@ io.on('connection', (socket) => {
   // });
 
 
+//get list of all rooms available
+// this instruction display all the rooms as an object
+//    console.log(io.sockets.adapter.rooms);
+// THIS IS AN EXAMPLE OF THE LIST OF ROOMS,
+// { 'hsQiv0U9P6FDfC-kAAAB': Room { sockets: { 'hsQiv0U9P6FDfC-kAAAB': true }, length: 1 },
+//   FRIENDS: Room { sockets: { 'hsQiv0U9P6FDfC-kAAAB': true }, length: 1 },
+//   '4QtpCv5iD21u4L0FAAAD': Room { sockets: { '4QtpCv5iD21u4L0FAAAD': true }, length: 1 },
+//   FAMILY: Room { sockets: { '4QtpCv5iD21u4L0FAAAD': true }, length: 1 },
+//   np52WJBzuqIWW1WmAAAE: Room { sockets: { np52WJBzuqIWW1WmAAAE: true }, length: 1 } }
+
+//FROM THE LIST ABOVE WE NEED ONLY THE ROOMS "FRIENDS" AND "FAMILY", WITH THE NEXT CODE WE CAN DO IT
+  var allRooms = []
+  var rooms = io.sockets.adapter.rooms
+   for(var room in rooms) {
+       var key = Object.keys(io.sockets.adapter.rooms[room].sockets);
+
+     if (room != key) {
+       allRooms.push(room);
+     }
+   }
+
+  socket.emit('getListRooms', allRooms);
 
 
    socket.on('join', (params, callback) => {
@@ -52,6 +74,8 @@ io.on('connection', (socket) => {
 
        //socket broadcast emit from Admin text New user joined
         socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin', `${params.name} has joined.`));
+
+
 
      callback();
    });
@@ -84,6 +108,8 @@ io.on('connection', (socket) => {
     //io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
   });
 
+
+
   socket.on('disconnect', () => {
    var user = users.removeUser(socket.id);
 
@@ -93,6 +119,8 @@ io.on('connection', (socket) => {
    }
   });
 });
+
+
 
 server.listen(port, () => {
   console.log(`Started on port ${port}`);

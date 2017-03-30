@@ -1,6 +1,7 @@
 //open a websocket connection with the server
 var socket = io();
 
+//this function is to calculate if the last message has reached the bottom of the screen to allow scroll the messages up
 function scrollToBottom () {
   // selectors
   var messages = jQuery('#messages');
@@ -21,7 +22,7 @@ function scrollToBottom () {
 //  socket.on('connect', () => {  //do no use arrow function, they did not work with  other browsers but chrome
 socket.on('connect', function () {
   var params = jQuery.deparam(window.location.search);
-
+//  console.log(params);
   socket.emit('join', params, function (err) {
     if (err) {
       alert(err);
